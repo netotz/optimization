@@ -1,5 +1,5 @@
 """
-Module for the Item class.
+Module for the Item and the Instance classes.
 """
 
 class Item:
@@ -20,3 +20,11 @@ class Item:
             str(self.ratio)
         ]
         return ' '.join(attributes)
+
+class Instance:
+    '''Contains the data of a Knapsack problem instance: number of items, knapsack's capacity and the items.
+    '''
+    def __init__(self, n, capacity, items):
+        self.total_items = n
+        self.capacity = capacity
+        self.items = items
