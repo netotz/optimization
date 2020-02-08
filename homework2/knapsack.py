@@ -52,3 +52,9 @@ class Knapsack:
         file_path = getFilePath(generateFileName(self.total_items, self.capacity))
         with open(file_path, 'w') as file:
             file.write(data)
+
+    def sortItems(self, by = 'ratio'):
+        '''Sort items by specified attribute: value, weight or ratio (default).
+        '''
+        unsorted_items = self.items
+        self.items = sorted(unsorted_items, key = lambda item: item.ratio)
