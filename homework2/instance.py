@@ -1,6 +1,5 @@
 """Module for the Instance class.
 """
-from file_handling import getInstancePath
 
 class Instance:
     '''Data of a basic Knapsack problem: number of items, knapsack's capacity and the items.

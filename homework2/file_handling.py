@@ -9,7 +9,7 @@ def generateFileName(total_items, capacity, index = 0):
     '''
     return '_'.join([str(total_items), str(capacity), str(index)]) + '.dat'
 
-def getInstancePath(file_name):
+def getFilePath(file_name):
     '''Returns the path of file_name.
     '''
     subdirectory = dirname(__file__)
