@@ -1,9 +1,11 @@
 """Module for the Instance class.
 """
+from file_handling import getInstancePath
 
 class Instance:
-    '''Contains the data of a Knapsack problem instance: number of items, knapsack's capacity and the items.
-    '''
+    '''Data of a basic Knapsack problem: number of items, knapsack's capacity and the items.
+    
+    Also includes methods to both generate and read an instance saved in a file.'''
     def __init__(self, n, capacity, items):
         self.total_items = n
         self.capacity = capacity

@@ -1,14 +1,6 @@
-from os import path
 from random import randint
 
 from item import Item, Instance
-
-def getInstancePath(file_name):
-    '''Returns the path of file_name.
-    '''
-    subdirectory = path.dirname(__file__)
-    file_path = path.join(subdirectory, 'instances/{}.dat'.format(file_name))
-    return file_path
 
 def generateInstance(file_name, items, capacity, min_weight, max_weight, min_value, max_value):
     '''Creates a custom instance and saves it to a file_name.dat in the instances/ subdirectory.

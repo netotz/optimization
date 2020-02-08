@@ -9,3 +9,10 @@ def generateFileName(total_items, capacity, index = 0):
     '''
     file_name = '_'.join([str(total_items), str(capacity), str(index)])
     return file_name
+
+def getInstancePath(file_name):
+    '''Returns the path of file_name.
+    '''
+    subdirectory = dirname(__file__)
+    file_path = join(subdirectory, 'instances/{}.dat'.format(file_name))
+    return file_path
