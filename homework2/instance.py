@@ -17,7 +17,7 @@ class Instance:
         self.items = items
 
     @classmethod
-    def generateRandom(cls, total_items, capacity, min_weight, max_weight, min_value, max_value):
+    def random(cls, total_items, capacity, min_weight, max_weight, min_value, max_value):
         '''Constructs an random Instance.
         '''
         items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
@@ -40,4 +40,14 @@ class Instance:
                 else:
                     n, W = line.split()
                     first_line = False
-        return cls(int(n), int(W), items)
+        return cls(int(n), float(W), items)
+
+    def toFile(self):
+        '''Saves the Instance object to a .dat file in the instances/ subdirectory.
+        '''
+        data = str(self.total_items) + ' ' + str(self.capacity) + '\n'
+        data += '\n'.join([str(item) for item in self.items])
+
+        file_path = getFilePath(generateFileName(self.total_items, self.capacity))
+        with open(file_path, 'w') as file:
+            file.write(data)

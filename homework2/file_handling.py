@@ -15,14 +15,3 @@ def getFilePath(file_name):
     subdirectory = dirname(__file__)
     file_path = join(subdirectory, 'instances/{}'.format(file_name))
     return file_path
-
-def saveInstance(instance):
-    '''Saves the Instance object to a .dat file in the instances/ subdirectory.
-    '''
-    total_items, capacity = instance.total_items, instance.capacity
-    data = str(total_items) + ' ' + str(capacity) + '\n'
-    data += '\n'.join([str(item) for item in instance.items])
-
-    file_path = getFilePath(generateFileName(total_items, capacity))
-    with open(file_path, 'w') as file:
-        file.write(data)
