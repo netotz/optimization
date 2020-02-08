@@ -13,10 +13,4 @@ class Item:
     def __str__(self):
         '''To String method.
         '''
-        attributes = [
-            str(self.index),
-            str(self.value),
-            str(self.weight),
-            str(self.ratio)
-        ]
-        return ' '.join(attributes)
+        return str(self.index) + ' ' + str(self.value) + ' ' + str(self.weight)
