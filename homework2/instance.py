@@ -23,3 +23,21 @@ class Instance:
         items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
         return cls(total_items, capacity, items)
 
+    @classmethod
+    def fromFile(cls, total_items, capacity):
+        '''Loads the instance's data saved in file_name.dat.
+
+        Returns an object of type Instance.
+        '''
+        file_path = getFilePath(generateFileName(total_items, capacity))
+        with open(file_path, 'r') as file:
+            items = list()
+            first_line = True
+            for line in file:
+                if not first_line:
+                    index, value, weight = line.split()
+                    items.append(Item(int(index),int(value),int(weight)))
+                else:
+                    n, W = line.split()
+                    first_line = False
+        return cls(int(n), int(W), items)
