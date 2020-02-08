@@ -17,11 +17,12 @@ class Knapsack:
         self.items = items
 
     @classmethod
-    def random(cls, total_items, capacity, min_weight, max_weight, min_value, max_value):
-        '''Constructs an random Knapsack.
+    def random(cls, total_items, min_weight, max_weight, min_value, max_value, percentage = 0.3):
+        '''Constructs an random Knapsack given the number of total items, limits for both values and weights, and an default percentage (0.3) to calculate the capacity.
         '''
+        W = total_items * percentage * ((min_weight + max_weight) / 2.0)
         items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
-        return cls(total_items, capacity, items)
+        return cls(total_items, W, items)
 
     @classmethod
     def fromFile(cls, total_items, capacity):
