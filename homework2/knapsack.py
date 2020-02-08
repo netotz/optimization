@@ -5,12 +5,12 @@ from random import randint
 from item import Item
 from file_handling import getFilePath, generateFileName
 
-class Instance:
+class Knapsack:
     '''Data of a basic Knapsack problem: number of items, knapsack's capacity and the items.
     
     Also includes methods to both generate and read an instance saved in a file.'''
     def __init__(self, total_items, capacity, items):
-        '''Constructs an Instance by specifying its data: n items, the capacity and a list of items.
+        '''Constructs an Knapsack instance by specifying its data: n items, the capacity and a list of items.
         '''
         self.total_items = total_items
         self.capacity = capacity
@@ -18,16 +18,16 @@ class Instance:
 
     @classmethod
     def random(cls, total_items, capacity, min_weight, max_weight, min_value, max_value):
-        '''Constructs an random Instance.
+        '''Constructs an random Knapsack.
         '''
         items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
         return cls(total_items, capacity, items)
 
     @classmethod
     def fromFile(cls, total_items, capacity):
-        '''Loads the instance's data saved in file_name.dat.
+        '''Loads the instance saved in file_name.dat.
 
-        Returns an object of type Instance.
+        Returns a Knapsack with the instance's data.
         '''
         file_path = getFilePath(generateFileName(total_items, capacity))
         with open(file_path, 'r') as file:
@@ -43,7 +43,7 @@ class Instance:
         return cls(int(n), float(W), items)
 
     def toFile(self):
-        '''Saves the Instance object to a .dat file in the instances/ subdirectory.
+        '''Saves the instance to a .dat file in the instances/ subdirectory.
         '''
         data = str(self.total_items) + ' ' + str(self.capacity) + '\n'
         data += '\n'.join([str(item) for item in self.items])
