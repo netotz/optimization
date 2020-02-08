@@ -30,10 +30,14 @@ def readInstance(file_name):
     '''
     file_path = getInstancePath(file_name)
     with open(file_path, 'r') as file:
-        total_items, capacity = list(map(int, file.readline().rstrip('\n').split()))
-        items = []
-        for _ in range(total_items):
-            index, value, weight = file.readline().rstrip('\n').split()
-            item = Item(int(index),int(value),int(weight))
-            items.append(item)
-    return Instance(total_items, capacity, items)
+        items = list()
+        first_line = True
+        for line in file:
+            if not first_line:
+                index, value, weight = line.split()
+                item = Item(int(index),int(value),int(weight))
+                items.append(item)
+            else:
+                total_items, capacity = line.split()
+                first_line = False
+    return Instance(int(total_items), int(capacity), items)
