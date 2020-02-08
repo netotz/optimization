@@ -59,9 +59,12 @@ class Knapsack:
         '''
         if by == 1:
             function = lambda item: item.value
+            descending = True
         elif by == 2:
             function = lambda item: item.weight
+            descending = False
         else:
             function = lambda item: item.ratio
+            descending = True
         unsorted_items = self.items
-        self.items = sorted(unsorted_items, key = function)
+        self.items = sorted(unsorted_items, key = function, reverse = descending)
