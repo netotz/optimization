@@ -13,7 +13,7 @@ def getFilePath(file_name):
     '''Returns the path of file_name.
     '''
     subdirectory = dirname(__file__)
-    file_path = join(subdirectory, 'instances/{}.dat'.format(file_name))
+    file_path = join(subdirectory, 'instances/{}'.format(file_name))
     return file_path
 
 def saveInstance(instance):
@@ -21,9 +21,8 @@ def saveInstance(instance):
     '''
     total_items, capacity = instance.total_items, instance.capacity
     data = str(total_items) + ' ' + str(capacity) + '\n'
-    for item in instance.items:
-        data += str(item) + '\n'
-        
+    data += '\n'.join([str(item) for item in instance.items])
+
     file_path = getFilePath(generateFileName(total_items, capacity))
     with open(file_path, 'w') as file:
         file.write(data)
