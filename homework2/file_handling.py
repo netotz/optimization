@@ -7,7 +7,7 @@ def generateFileName(total_items, capacity, index = 0):
 
     The index parameter distinguishes instances of same size.
     '''
-    return str(total_items) + '_' str(capacity) + '_' str(index) + '.dat'
+    return str(total_items) + '_' + str(capacity) + '_' + str(index) + '.dat'
 
 def getFilePath(file_name):
     '''Returns the path of file_name.
@@ -15,3 +15,15 @@ def getFilePath(file_name):
     subdirectory = dirname(__file__)
     file_path = join(subdirectory, 'instances/{}.dat'.format(file_name))
     return file_path
+
+def saveInstance(instance):
+    '''Saves the Instance object to a .dat file in the instances/ subdirectory.
+    '''
+    total_items, capacity = instance.total_items, instance.capacity
+    data = str(total_items) + ' ' + str(capacity) + '\n'
+    for item in instance.items:
+        data += str(item) + '\n'
+        
+    file_path = getFilePath(generateFileName(total_items, capacity))
+    with open(file_path, 'w') as file:
+        file.write(data)
