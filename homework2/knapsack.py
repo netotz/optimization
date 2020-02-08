@@ -1,6 +1,7 @@
 """Module for the Instance class.
 """
 from random import randint
+from typing import List
 
 from item import Item
 from file_handling import getFilePath, generateFileName
@@ -9,7 +10,7 @@ class Knapsack:
     '''Data of a basic Knapsack problem: number of items, knapsack's capacity and the items.
     
     Also includes methods to both generate and read an instance saved in a file.'''
-    def __init__(self, total_items, capacity, items):
+    def __init__(self, total_items, capacity, items: List[Item]):
         '''Constructs an Knapsack instance by specifying its data: n items, the capacity and a list of items.
         '''
         self.total_items = total_items
