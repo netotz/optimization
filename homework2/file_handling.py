@@ -7,8 +7,7 @@ def generateFileName(total_items, capacity, index = 0):
 
     The index parameter distinguishes instances of same size.
     '''
-    file_name = '_'.join([str(total_items), str(capacity), str(index)])
-    return file_name
+    return '_'.join([str(total_items), str(capacity), str(index)]) + '.dat'
 
 def getInstancePath(file_name):
     '''Returns the path of file_name.
