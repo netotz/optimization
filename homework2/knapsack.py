@@ -53,8 +53,14 @@ class Knapsack:
         with open(file_path, 'w') as file:
             file.write(data)
 
-    def sortItems(self, by = 'ratio'):
-        '''Sort items by specified attribute: value, weight or ratio (default).
+    def sortItems(self, by = 3):
+        '''Sort items by specified attribute: value = 1, weight = 2 or ratio = 3 (default).
         '''
+        if by == 1:
+            function = lambda item: item.value
+        elif by == 2:
+            function = lambda item: item.weight
+        else:
+            function = lambda item: item.ratio
         unsorted_items = self.items
-        self.items = sorted(unsorted_items, key = lambda item: item.ratio)
+        self.items = sorted(unsorted_items, key = function)
