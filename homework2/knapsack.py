@@ -26,12 +26,12 @@ class Knapsack:
         return cls(total_items, W, items)
 
     @classmethod
-    def fromFile(cls, total_items, capacity):
+    def fromFile(cls, total_items, capacity, index):
         '''Loads the instance saved in file_name.dat.
 
         Returns a Knapsack with the instance's data.
         '''
-        file_path = getFilePath(generateFileName(total_items, capacity))
+        file_path = getFilePath(generateFileName(total_items, capacity, index))
         with open(file_path, 'r') as file:
             items = list()
             first_line = True
