@@ -2,6 +2,7 @@
 """
 from random import randint
 from typing import List
+from os import stat
 
 from item import Item
 from file_handling import getFilePath, generateFileName
@@ -32,17 +33,27 @@ class Knapsack:
         Returns a Knapsack with the instance's data.
         '''
         file_path = getFilePath(generateFileName(total_items, capacity, index))
-        with open(file_path, 'r') as file:
-            items = list()
-            first_line = True
-            for line in file:
-                if not first_line:
-                    index, value, weight = line.split()
-                    items.append(Item(int(index),int(value),int(weight)))
-                else:
-                    n, W = line.split()
-                    first_line = False
-        return cls(int(n), float(W), items)
+        try:
+            if stat(file_path).st_size == 0:
+                print('Empty file.')
+                return None
+            with open(file_path, 'r') as file:
+                items = list()
+                first_line = True
+                for line in file:
+                    if not first_line:
+                        index, value, weight = line.split()
+                        items.append(Item(int(index),int(value),int(weight)))
+                    else:
+                        n, W = line.split()
+                        first_line = False
+            return cls(int(n), float(W), items)
+        except FileNotFoundError as error:
+            print('File not found: {}'.format(error))
+            return None
+        except ValueError as error:
+            print('File has invalid format: {}'.format(error))
+            return None
 
     def toFile(self):
         '''Saves the instance to a .dat file in the instances/ subdirectory.
