@@ -1,6 +1,7 @@
 from os import path
 from random import randint
-from item import Item
+
+from item import Item, Instance
 
 def getInstancePath(file_name):
     '''Returns the path of file_name.
@@ -23,16 +24,16 @@ def generateInstance(file_name, items, capacity, min_weight, max_weight, min_val
             file.write(line)
 
 def readInstance(file_name):
-    '''Loads the instance saved in file_name.dat.
+    '''Loads the instance's data saved in file_name.dat.
 
-    Returns a tuple of 3 elements: the number of items, the capacity and the list of the items.
+    Returns an object of type Instance.
     '''
     file_path = getInstancePath(file_name)
     with open(file_path, 'r') as file:
-        total_items, capacity = file.readline().split()
+        total_items, capacity = list(map(int, file.readline().rstrip('\n').split()))
         items = []
-        for _ in range(int(total_items)):
-            raw_item = file.readline().rstrip('\n').split()
-            item = Item(int(raw_item[0]), int(raw_item[1]), int(raw_item[2]))
+        for _ in range(total_items):
+            index, value, weight = file.readline().rstrip('\n').split()
+            item = Item(int(index),int(value),int(weight))
             items.append(item)
-    return (total_items, capacity, items)
+    return Instance(total_items, capacity, items)
