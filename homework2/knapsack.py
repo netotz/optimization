@@ -15,9 +15,21 @@ class Knapsack:
     def __init__(self, total_items, capacity, items: List[Item]):
         '''Constructs an Knapsack instance by specifying its data: n items, the capacity and a list of items.
         '''
-        self.total_items = total_items
-        self.capacity = capacity
-        self.items = items
+        self.__total_items = total_items
+        self.__capacity = capacity
+        self.__items = items
+
+    @property
+    def total_items(self):
+        return self.__total_items
+
+    @property
+    def capacity(self):
+        return self.__capacity
+
+    @property
+    def items(self) -> List[Item] :
+        return self.__items
 
     @classmethod
     def random(cls, total_items, min_weight, max_weight, min_value, max_value, percentage = 0.3):
