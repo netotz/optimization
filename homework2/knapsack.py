@@ -28,14 +28,14 @@ class Knapsack:
         return self.__capacity
 
     @property
-    def items(self) -> List[Item] :
+    def items(self) -> List[Item]:
         return self.__items
 
     @classmethod
-    def random(cls, total_items, min_weight, max_weight, min_value, max_value, percentage = 0.3):
+    def random(cls, total_items, min_weight, max_weight, min_value, max_value, capacity_percentage = 0.3):
         '''Constructs an random Knapsack given the number of total items, limits for both values and weights, and an default percentage (0.3) to calculate the capacity.
         '''
-        W = total_items * percentage * ((min_weight + max_weight) / 2.0)
+        W = total_items * capacity_percentage * ((min_weight + max_weight) / 2.0)
         items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
         return cls(total_items, W, items)
 
@@ -100,4 +100,4 @@ class Knapsack:
             function = lambda item: item.ratio
             descending = True
         unsorted_items = self.items
-        self.items = sorted(unsorted_items, key = function, reverse = descending)
+        self.__items = sorted(unsorted_items, key = function, reverse = descending)
