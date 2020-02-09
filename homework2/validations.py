@@ -1,8 +1,8 @@
 """Module for validating inputs.
 """
 
-def isPositiveInteger(string):
-    '''If the string argument represents a valid positive integer, returns True.
+def isNonNegativeInteger(string):
+    '''If the string argument represents a valid non-negative integer (> 0), returns True.
     '''
     try:
         integer = int(string)
