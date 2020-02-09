@@ -1,1 +1,2 @@
-PySimpleGUI==4.15.2
+PyInquirer==1.0.3
+tweepy==3.8.0
