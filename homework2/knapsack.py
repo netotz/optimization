@@ -3,6 +3,7 @@
 from random import randint
 from typing import List
 from os import stat
+from os.path import exists
 
 from item import Item
 from file_handling import getFilePath, generateFileName
@@ -61,9 +62,18 @@ class Knapsack:
         data = str(self.total_items) + ' ' + str(self.capacity) + '\n'
         data += '\n'.join([str(item) for item in self.items])
 
-        file_path = getFilePath(generateFileName(self.total_items, self.capacity))
-        with open(file_path, 'w') as file:
-            file.write(data)
+        try:
+            index = 0
+            while True:
+                file_path = getFilePath(generateFileName(self.total_items, self.capacity, index))
+                if exists(file_path):
+                    index += 1
+                else:
+                    break
+            with open(file_path, 'w') as file:
+                file.write(data)
+        except (IOError, ValueError) as error:
+            print("Instance could not be saved: {}".format(error))
 
     def sortItems(self, by = 3):
         '''Sort items by specified attribute: value = 1, weight = 2 or ratio = 3 (default).
