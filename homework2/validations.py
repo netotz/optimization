@@ -1,12 +1,16 @@
 """Module for validating inputs.
 """
 
-def isPositiveInteger(string):
-    '''If the string argument represents a valid positive integer (> 0), returns True.
+def isPositiveNumber(_type, string):
+    '''If the string argument represents a valid positive type number, returns True.
     '''
     try:
-        integer = int(string)
-        if integer <= 0:
+        if _type == 'int':
+            number = int(string)
+        else:
+            number = float(string)
+        
+        if number <= 0:
             return False
     except ValueError:
         return False
