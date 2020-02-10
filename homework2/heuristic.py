@@ -5,7 +5,7 @@ from typing import List
 from knapsack import Knapsack
 from item import Item
 
-def pickItems(knapsack: Knapsack, heuristic = 3):
+def pickItems(knapsack: Knapsack, heuristic) -> List[Item]:
     '''Use the heuristic specified in the argument to get a solution for the knapsack problem.
     '''
     knapsack.sortItems(heuristic)

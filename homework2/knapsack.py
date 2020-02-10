@@ -87,7 +87,7 @@ class Knapsack:
         except (IOError, ValueError) as error:
             print("Instance could not be saved: {}".format(error))
 
-    def sortItems(self, by = 3):
+    def sortItems(self, by):
         '''Sort items by specified attribute: value = 1, weight = 2 or ratio = 3 (default).
         '''
         if by == 1:

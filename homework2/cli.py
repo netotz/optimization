@@ -9,6 +9,7 @@ import examples as styles
 from validations import isPositiveNumber, isValidPercentage
 from knapsack import Knapsack
 from file_handling import listFiles
+from heuristic import pickItems, sumValues
 
 # last given value
 # ! global variable
@@ -131,7 +132,7 @@ def createFilesCheckbox(files):
     )
 
 def createHeuristicsCheckbox():
-    '''Returns a chec
+    '''Returns a checkbox to select a heuristic.
     '''
     return (
         {
@@ -158,6 +159,18 @@ def createHeuristicsCheckbox():
         }
     )
 
+def solveInstances(knapsacks: List[Knapsack]):
+    '''Solve the generated or loaded instances by the specified heuristics.
+    '''
+    heuristics = prompt(createHeuristicsCheckbox(), style=styles.custom_style_2)['heuristics']
+    for i, k in enumerate(knapsacks):
+        print('{}° instance:\n\t{} items\n\t{} of capacity'.format(i + 1, k.total_items, k.capacity))
+        for h in heuristics:
+            items = pickItems(k, h)
+            value = sumValues(items)
+            print('  Total value by heuristic {}: {}\n  Percentage of items picked: {}%'.format(h, value, (len(items) / k.total_items) * 100))
+        print()
+
 def runCLI():
     '''Runs the options selector.
     '''
@@ -167,7 +180,7 @@ def runCLI():
         # generate
         knapsacks = generateInstances()
     else:
-        # TODO: load
+        # load
         files = listFiles()
         if not files:
             print("\nThere isn't any available file to load.")
