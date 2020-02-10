@@ -74,21 +74,19 @@ def generateInstances() -> List[Knapsack]:
     i = 1
     while True:
         print('\n  === {}° instance ==='.format(i))
-        questions = createInstanceQuestions()
-        answers = prompt(questions, style=styles.custom_style_1)
+        answers = prompt(createInstanceQuestions(), style=styles.custom_style_1)
         knapsacks.append(Knapsack.random(answers['n'], answers['min w'], answers['max w'], answers['min v'], answers['max v'], answers['p']))
         print()
-        questions = askAnotherInstance()
-        answers = prompt(questions, style=styles.custom_style_2)
+        answers = prompt(askAnotherInstance(), style=styles.custom_style_2)
         if not answers['another']:
             break
         i += 1
     return knapsacks
 
-def runCLI():
-    '''Runs the options selector.
+def createMenu():
+    '''Create the main menu option.
     '''
-    questions = (
+    return (
         { # ask to generate or load an instance
             'type': 'list',
             'name': 'menu',
@@ -106,7 +104,10 @@ def runCLI():
         }
     )
 
-    option = prompt(questions, style=styles.custom_style_3)['menu']
+def runCLI():
+    '''Runs the options selector.
+    '''
+    option = prompt(createMenu(), style=styles.custom_style_3)['menu']
     if option == 1:
         # generate
         knapsacks = generateInstances()
