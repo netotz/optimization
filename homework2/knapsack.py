@@ -40,12 +40,12 @@ class Knapsack:
         return cls(total_items, W, items)
 
     @classmethod
-    def fromFile(cls, total_items, capacity, index):
+    def fromFile(cls, file_name):
         '''Loads the instance saved in file_name.dat.
 
         Returns a Knapsack with the instance's data.
         '''
-        file_path = getFilePath(generateFileName(total_items, capacity, index))
+        file_path = getFilePath(file_name)
         try:
             if stat(file_path).st_size == 0:
                 print('Empty file.')
