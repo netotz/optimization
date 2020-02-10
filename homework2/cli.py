@@ -125,7 +125,8 @@ def createFilesCheckbox(files):
                 'qmark': '*',
                 'name': 'files',
                 'message': 'The first number is the total items and the second is the capacity.\nWhich instances do you want to load?',
-                'choices': files_listed
+                'choices': files_listed,
+                'validate': lambda options: True if len(options) > 0 else 'Please select at least one file to load.'
         }
     )
 
