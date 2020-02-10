@@ -179,6 +179,10 @@ def runCLI():
     if option == 1:
         # generate
         knapsacks = generateInstances()
+        print('\nSaving instances to files... ', end='')
+        for k in knapsacks:
+            k.toFile()
+        print('done')
     else:
         # load
         files = listFiles()
