@@ -3,7 +3,7 @@
 from typing import List
 from os import system
 
-from PyInquirer import prompt, Separator
+from PyInquirer import prompt
 import examples as styles
 
 from validations import isPositiveNumber, isValidPercentage
@@ -13,14 +13,14 @@ from heuristic import pickItems, sumValues
 
 # last given value
 # ! global variable
-_last_ = 0
+__last__ = 0
 
 def saveLast(string):
     '''Saves the last given value within the prompt.
     '''
     if isPositiveNumber('int', string):
-        global _last_
-        _last_ = int(string)
+        global __last__
+        __last__ = int(string)
         return True
     return 'Please enter a valid positive integer.'
 
@@ -29,8 +29,8 @@ def validateMax(string):
     '''
     if isPositiveNumber('int', string):
         integer = int(string)
-        global _last_
-        if integer > _last_:
+        global __last__
+        if integer > __last__:
             return True
         else:
             return 'Please enter a number greater than the lower limit.'
@@ -78,8 +78,9 @@ def generateInstances() -> List[Knapsack]:
     while True:
         print('\n  === {}° instance ==='.format(i))
         answers = prompt(createInstanceQuestions(), style=styles.custom_style_1)
+        print('  Generating instance... ', end='')
         knapsacks.append(Knapsack.random(answers['n'], answers['min w'], answers['max w'], answers['min v'], answers['max v'], answers['p']))
-        print()
+        print('done')
         answers = prompt(askAnotherInstance(), style=styles.custom_style_2)
         if not answers['another']:
             break
@@ -127,7 +128,7 @@ def createFilesCheckbox(files):
                 'name': 'files',
                 'message': 'The first number is the total items and the second is the capacity.\nWhich instances do you want to load?',
                 'choices': files_listed,
-                'validate': lambda options: True if len(options) > 0 else 'Please select at least one file to load.'
+                'validate': lambda answer: 'Please select at least one file.' if len(answer) == 0 else True
         }
     )
 
@@ -151,25 +152,25 @@ def createHeuristicsCheckbox():
                 },
                 {
                     'name': 'Pick the items with the highest value-weight ratio',
-                    'value': 3,
-                    'checked': True
+                    'checked': True,
+                    'value': 3
                 }
             ),
-            'validate': lambda options: True if len(options) > 0 else 'Please select at least one heuristic.'
+            'validate': lambda answer: 'Please select at least one heuristic.' if len(answer) == 0 else True
         }
     )
 
 def solveInstances(knapsacks: List[Knapsack]):
     '''Solve the generated or loaded instances by the specified heuristics.
     '''
-    heuristics = prompt(createHeuristicsCheckbox(), style=styles.custom_style_2)['heuristics']
+    heuristics = prompt(createHeuristicsCheckbox())['heuristics']
     for i, k in enumerate(knapsacks):
-        print('{}° instance:\n\t{} items\n\t{} of capacity'.format(i + 1, k.total_items, k.capacity))
+        print('\n{}° instance:\n   {} items\n   {} of capacity'.format(i + 1, k.total_items, k.capacity))
         for h in heuristics:
             items = pickItems(k, h)
             value = sumValues(items)
-            print('  Total value by heuristic {}: {}\n  Percentage of items picked: {}%'.format(h, value, (len(items) / k.total_items) * 100))
-        print()
+            print('\tTotal value by heuristic {}: {}\n\tPercentage of items picked: {}%'.format(h, value, (len(items) / k.total_items) * 100))
+            print()
 
 def runCLI():
     '''Runs the options selector.
@@ -179,7 +180,7 @@ def runCLI():
     if option == 1:
         # generate
         knapsacks = generateInstances()
-        print('\nSaving instances to files... ', end='')
+        print('\n  Saving instances to files... ', end='')
         for k in knapsacks:
             k.toFile()
         print('done')
@@ -195,9 +196,12 @@ def runCLI():
                 return runCLI()
         else:
             # there are available files
-            instances = prompt(createFilesCheckbox(files), style=styles.custom_style_2)['files']
+            instances = prompt(createFilesCheckbox(files))['files']
+            print('  Loading instances... ', end='')
             knapsacks = [Knapsack.fromFile(name) for name in instances]
+            print('done')
     
     if knapsacks is None:
         return
-    
+    system('cls')
+    solveInstances(knapsacks)
