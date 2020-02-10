@@ -121,17 +121,46 @@ def createFilesCheckbox(files):
     files_listed = [{'name': name} for name in files]
     return (
             {
+                'type': 'checkbox',
+                'qmark': '*',
+                'name': 'files',
+                'message': 'The first number is the total items and the second is the capacity.\nWhich instances do you want to load?',
+                'choices': files_listed
+        }
+    )
+
+def createHeuristicsCheckbox():
+    '''Returns a chec
+    '''
+    return (
+        {
             'type': 'checkbox',
             'qmark': '*',
-            'name': 'files',
-            'message': 'The first number is the total items and the second is the capacity.\nWhich instances do you want to load?',
-            'choices': files_listed
+            'name': 'heuristics',
+            'message': 'Which heuristic techniques do you want to use?',
+            'choices': (
+                {
+                    'name': 'Pick the most valuable items',
+                    'value': 1
+                },
+                {
+                    'name': 'Pick the lightest items',
+                    'value': 2
+                },
+                {
+                    'name': 'Pick the items with the highest value-weight ratio',
+                    'value': 3,
+                    'checked': True
+                }
+            ),
+            'validate': lambda options: True if len(options) > 0 else 'Please select at least one heuristic.'
         }
     )
 
 def runCLI():
     '''Runs the options selector.
     '''
+    knapsacks = None
     option = prompt(createMenu(), style=styles.custom_style_3)['menu']
     if option == 1:
         # generate
@@ -141,9 +170,16 @@ def runCLI():
         files = listFiles()
         if not files:
             print("\nThere isn't any available file to load.")
-            if not prompt(askForExit(), style=styles.custom_style_2)['exit']:
+            if prompt(askForExit(), style=styles.custom_style_2)['exit']:
+                return
+            else:
                 system('cls')
                 return runCLI()
         else:
+            # there are available files
             instances = prompt(createFilesCheckbox(files), style=styles.custom_style_2)['files']
             knapsacks = [Knapsack.fromFile(name) for name in instances]
+    
+    if knapsacks is None:
+        return
+    
