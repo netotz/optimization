@@ -7,6 +7,7 @@ import examples as styles
 
 from validations import isPositiveNumber, isValidPercentage
 from knapsack import Knapsack
+from file_handling import listFiles
 
 # last given value
 # ! global variable
@@ -104,6 +105,15 @@ def createMenu():
         }
     )
 
+def askForExit():
+    return (
+        {
+            'type': 'confirm',
+            'name': 'exit',
+            'message': 'Do you want to exit?'
+        }
+    )
+
 def runCLI():
     '''Runs the options selector.
     '''
@@ -113,4 +123,11 @@ def runCLI():
         knapsacks = generateInstances()
     else:
         # TODO: load
-        pass
+        files = listFiles()
+        if not files:
+            print("\nThere isn't any available file to load.")
+            if not prompt(askForExit(), style=styles.custom_style_2)['exit']:
+                # clear console
+                return runCLI()
+        else:
+            pass
