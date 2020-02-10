@@ -17,9 +17,9 @@ def getFilePath(file_name):
     file_path = join(current_directory, 'instances/{}'.format(file_name))
     return file_path
 
-def listFiles():
+def listFiles(extension):
     '''Returns a list with the .dat files in the instances/ subdirectory.
     '''
     current_directory = dirname(__file__)
     subdirectory = join(current_directory, 'instances\\')
-    return [file for file in listdir(subdirectory) if isfile(join(subdirectory, file)) and file[-3:].lower() == 'dat']
+    return [file for file in listdir(subdirectory) if isfile(join(subdirectory, file)) and file[-3:].lower() == extension]
