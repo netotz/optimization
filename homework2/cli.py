@@ -1,6 +1,7 @@
 """Module for the CLI (command line interface).
 """
 from typing import List
+from os import system
 
 from PyInquirer import prompt, Separator
 import examples as styles
@@ -94,11 +95,11 @@ def createMenu():
             'message': 'What do you want to do?',
             'choices': (
                 {
-                    'name': 'Generate a random instance',
+                    'name': 'Generate random instances',
                     'value': 1
                 },
                 {
-                    'name': 'Load an instance from a file',
+                    'name': 'Load instances from files',
                     'value': 2
                 }
             )
@@ -111,6 +112,20 @@ def askForExit():
             'type': 'confirm',
             'name': 'exit',
             'message': 'Do you want to exit?'
+        }
+    )
+
+def createFilesCheckbox(files):
+    '''Returns a checkbox of the available files.
+    '''
+    files_listed = [{'name': name} for name in files]
+    return (
+            {
+            'type': 'checkbox',
+            'qmark': '*',
+            'name': 'files',
+            'message': 'The first number is the total items and the second is the capacity.\nWhich instances do you want to load?',
+            'choices': files_listed
         }
     )
 
@@ -127,7 +142,8 @@ def runCLI():
         if not files:
             print("\nThere isn't any available file to load.")
             if not prompt(askForExit(), style=styles.custom_style_2)['exit']:
-                # clear console
+                system('cls')
                 return runCLI()
         else:
-            pass
+            instances = prompt(createFilesCheckbox(files), style=styles.custom_style_2)['files']
+            knapsacks = [Knapsack.fromFile(name) for name in instances]
