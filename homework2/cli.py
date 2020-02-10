@@ -1,5 +1,7 @@
 """Module for the CLI (command line interface).
 """
+from typing import List
+
 from PyInquirer import prompt, Separator
 import examples as styles
 
@@ -7,6 +9,7 @@ from validations import isPositiveNumber, isValidPercentage
 from knapsack import Knapsack
 
 # last given value
+# ! global variable
 _last_ = 0
 
 def saveLast(string):
@@ -64,6 +67,24 @@ def askAnotherInstance():
         }
     )
 
+def generateInstances() -> List[Knapsack]:
+    '''Generate instances from prompt.
+    '''
+    knapsacks = list()
+    i = 1
+    while True:
+        print('\n  === {}° instance ==='.format(i))
+        questions = createInstanceQuestions()
+        answers = prompt(questions, style=styles.custom_style_1)
+        knapsacks.append(Knapsack.random(answers['n'], answers['min w'], answers['max w'], answers['min v'], answers['max v'], answers['p']))
+        print()
+        questions = askAnotherInstance()
+        answers = prompt(questions, style=styles.custom_style_2)
+        if not answers['another']:
+            break
+        i += 1
+    return knapsacks
+
 def runCLI():
     '''Runs the options selector.
     '''
@@ -88,19 +109,7 @@ def runCLI():
     option = prompt(questions, style=styles.custom_style_3)['menu']
     if option == 1:
         # generate
-        knapsacks = list()
-        i = 1
-        while True:
-            print('\n  === {}° instance ==='.format(i))
-            questions = createInstanceQuestions()
-            answers = prompt(questions, style=styles.custom_style_1)
-            knapsacks.append(Knapsack.random(answers['n'], answers['min w'], answers['max w'], answers['min v'], answers['max v'], answers['p']))
-            print()
-            questions = askAnotherInstance()
-            answers = prompt(questions, style=styles.custom_style_2)
-            if not answers['another']:
-                break
-            i += 1
+        knapsacks = generateInstances()
     else:
         # TODO: load
         pass
