@@ -167,16 +167,17 @@ def validateCheckbox(checkbox, name):
     Returns a list of the elements chosen.
     '''
     while True:
-        system('cls')
+        print()
         answers = prompt(checkbox)[name]
         if len(answers) > 0:
             return answers
-    
+        else:
+            print('{}Please select at least one {}.{}'.format('\033[1m', name[:-1], '\033[0m'))
 
 def solveInstances(knapsacks: List[Knapsack]):
     '''Solve the generated or loaded instances by the specified heuristics.
     '''
-    heuristics = prompt(createHeuristicsCheckbox())['heuristics']
+    heuristics = validateCheckbox(createHeuristicsCheckbox(), 'heuristics')
     for i, k in enumerate(knapsacks):
         print('\n{}° instance:\n   {} items\n   {} of capacity'.format(i + 1, k.total_items, k.capacity))
         for h in heuristics:
@@ -209,7 +210,7 @@ def runCLI():
                 return runCLI()
         else:
             # there are available files
-            instances = prompt(createFilesCheckbox(files))['files']
+            instances = validateCheckbox(createFilesCheckbox(files), 'files')
             print('  Loading instances... ', end='')
             knapsacks = [Knapsack.fromFile(name) for name in instances]
             print('done')
