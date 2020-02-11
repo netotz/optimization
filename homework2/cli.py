@@ -3,8 +3,10 @@
 from typing import List
 from os import system
 
-from PyInquirer import prompt
-import examples as styles
+# ! symbols used by PyInquirer don't show in CMD
+# from PyInquirer import prompt
+from questionary import prompt
+# import examples as styles
 
 from validations import isPositiveNumber, isValidPercentage
 from knapsack import Knapsack
@@ -78,11 +80,11 @@ def generateInstances() -> List[Knapsack]:
     i = 1
     while True:
         print('\n  === {}° instance ==='.format(i))
-        answers = prompt(createInstanceQuestions(), style=styles.custom_style_1)
+        answers = prompt(createInstanceQuestions())
         print('  Generating instance... ', end='')
         knapsacks.append(Knapsack.random(answers['n'], answers['min w'], answers['max w'], answers['min v'], answers['max v'], answers['p']))
         print('done')
-        answers = prompt(askAnotherInstance(), style=styles.custom_style_2)
+        answers = prompt(askAnotherInstance())
         if not answers['another']:
             break
         i += 1
@@ -129,8 +131,7 @@ def createFilesCheckbox(files):
                 'qmark': '~',
                 'name': 'files',
                 'message': 'Which instances do you want to load?',
-                'choices': files_listed,
-                'validate': lambda answer: 'Please select at least one file.' if len(answer) == 0 else True
+                'choices': files_listed
         }
     )
 
@@ -154,10 +155,10 @@ def createHeuristicsCheckbox():
                 },
                 {
                     'name': 'Pick the items with the highest value-weight ratio',
+                    'checked': True,
                     'value': 3
                 }
-            ),
-            'validate': lambda answer: 'Please select at least one heuristic.' if len(answer) == 0 else True
+            )
         }
     )
 
@@ -191,7 +192,7 @@ def runCLI():
     '''Runs the options selector.
     '''
     knapsacks = None
-    option = prompt(createMenu(), style=styles.custom_style_3)['menu']
+    option = prompt(createMenu())['menu']
     if option == 1:
         # generate
         knapsacks = generateInstances()
@@ -209,7 +210,7 @@ def runCLI():
         files = listFiles()
         if not files:
             print("\nThere isn't any available file to load.")
-            if prompt(askForExit(), style=styles.custom_style_2)['exit']:
+            if prompt(askForExit())['exit']:
                 return
             else:
                 system('cls')
