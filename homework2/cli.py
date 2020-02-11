@@ -160,6 +160,19 @@ def createHeuristicsCheckbox():
         }
     )
 
+def validateCheckbox(checkbox, name):
+    '''
+    Enters a loop until at least one element of the checkbox is chosen.
+
+    Returns a list of the elements chosen.
+    '''
+    while True:
+        system('cls')
+        answers = prompt(checkbox)[name]
+        if len(answers) > 0:
+            return answers
+    
+
 def solveInstances(knapsacks: List[Knapsack]):
     '''Solve the generated or loaded instances by the specified heuristics.
     '''
