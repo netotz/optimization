@@ -42,6 +42,7 @@ def createInputQuestion(name, message, function = saveLast, cast = int):
     return {
         'type': 'input',
         'name': name,
+        'qmark': '>',
         'message':  message,
         'validate': function,
         'filter': lambda n: cast(n)
@@ -95,6 +96,7 @@ def createMenu():
             'type': 'list',
             'name': 'menu',
             'message': 'What do you want to do?',
+            'qmark': '~',
             'choices': (
                 {
                     'name': 'Generate random instances',
@@ -124,9 +126,9 @@ def createFilesCheckbox(files):
     return (
             {
                 'type': 'checkbox',
-                'qmark': '*',
+                'qmark': '~',
                 'name': 'files',
-                'message': 'The first number is the total items and the second is the capacity.\nWhich instances do you want to load?',
+                'message': 'Which instances do you want to load?',
                 'choices': files_listed,
                 'validate': lambda answer: 'Please select at least one file.' if len(answer) == 0 else True
         }
@@ -138,7 +140,7 @@ def createHeuristicsCheckbox():
     return (
         {
             'type': 'checkbox',
-            'qmark': '*',
+            'qmark': '~',
             'name': 'heuristics',
             'message': 'Which heuristic techniques do you want to use?',
             'choices': (
@@ -152,7 +154,6 @@ def createHeuristicsCheckbox():
                 },
                 {
                     'name': 'Pick the items with the highest value-weight ratio',
-                    'checked': True,
                     'value': 3
                 }
             ),
@@ -172,7 +173,7 @@ def validateCheckbox(checkbox, name):
         if len(answers) > 0:
             return answers
         else:
-            print('{}Please select at least one {}.{}'.format('\033[1m', name[:-1], '\033[0m'))
+            print('Please select at least one {}.'.format(name[:-1]))
 
 def solveInstances(knapsacks: List[Knapsack]):
     '''Solve the generated or loaded instances by the specified heuristics.
@@ -183,7 +184,7 @@ def solveInstances(knapsacks: List[Knapsack]):
         for h in heuristics:
             items = pickItems(k, h)
             value = sumValues(items)
-            print('\tTotal value by heuristic {}: {}\n\tPercentage of items picked: {}%'.format(h, value, (len(items) / k.total_items) * 100))
+            print('\tTotal value by heuristic {}: {}\n\tPercentage of items picked: {:.2f}%'.format(h, value, (len(items) / k.total_items) * 100))
             print()
 
 def runCLI():
@@ -194,7 +195,12 @@ def runCLI():
     if option == 1:
         # generate
         knapsacks = generateInstances()
-        print('\n  Saving instances to files... ', end='')
+        instances_str = 'instance'
+        files_str = 'file'
+        if len(knapsacks) > 1:
+            instances_str += 's'
+            files_str += 's'
+        print('\n  Saving {} to {}... '.format(instances_str, files_str), end='')
         for k in knapsacks:
             k.toFile()
         print('done')
@@ -211,11 +217,13 @@ def runCLI():
         else:
             # there are available files
             instances = validateCheckbox(createFilesCheckbox(files), 'files')
-            print('  Loading instances... ', end='')
+            instances_str = 'instance'
+            if len(instances) > 1:
+                instances_str += 's'
+            print('  Loading {}... '.format(instances_str), end='')
             knapsacks = [Knapsack.fromFile(name) for name in instances]
             print('done')
     
     if knapsacks is None:
         return
-    system('cls')
     solveInstances(knapsacks)
