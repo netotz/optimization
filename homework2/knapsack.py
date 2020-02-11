@@ -36,8 +36,10 @@ class Knapsack:
         '''Constructs an random Knapsack given the number of total items, limits for both values and weights, and an default percentage (0.3) to calculate the capacity.
         '''
         W = total_items * (capacity_percentage / 100.0) * ((min_weight + max_weight) / 2.0)
+        # truncate decimals
+        capacity = float(format(W, 'g'))
         items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
-        return cls(total_items, W, items)
+        return cls(total_items, capacity, items)
 
     @classmethod
     def fromFile(cls, file_name):
