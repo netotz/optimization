@@ -205,10 +205,10 @@ def runCLI():
         if len(knapsacks) > 1:
             instances_str += 's'
             files_str += 's'
-        print('  Saving {} to {}...\n'.format(instances_str, files_str), end='')
+        print('  Saving {} to {}...'.format(instances_str, files_str))
         for k in knapsacks:
             k.toFile()
-        print('  done.')
+        print('  ...done')
     # load
     else:
         files = listFiles()
@@ -226,7 +226,7 @@ def runCLI():
             instances_str = 'instance'
             if len(instances) > 1:
                 instances_str += 's'
-            print('  Loading {}...\n'.format(instances_str), end='')
+            print('  Loading {}...'.format(instances_str))
 
             knapsacks = list()
             for name in instances:
@@ -236,8 +236,8 @@ def runCLI():
             
             # check if knapsacks' list is empty
             if not knapsacks:
-                print('  failed :(')
+                print('  ...failed :(')
                 return runCLI()
             else:
-                print('  done.')
+                print('  ...done')
     solveInstances(knapsacks)
