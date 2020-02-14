@@ -1,6 +1,6 @@
 """Module for reading and writing files that contain instances of a Knapsack problem.
 """
-from os import listdir
+from os import listdir, makedirs
 from os.path import dirname, join, isfile
 
 def generateFileName(total_items, capacity, index = 0):
@@ -22,4 +22,10 @@ def listFiles():
     '''
     current_directory = dirname(__file__)
     subdirectory = join(current_directory, 'instances')
-    return [file for file in listdir(subdirectory) if isfile(join(subdirectory, file)) and file[-3:].lower() == 'dat']
+    try:
+        files_list = listdir(subdirectory)
+    except FileNotFoundError:
+        makedirs(subdirectory)
+        return listFiles()
+    else:
+        return [file for file in files_list if isfile(join(subdirectory, file)) and file[-3:].lower() == 'dat']
