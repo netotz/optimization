@@ -191,22 +191,24 @@ def solveInstances(knapsacks: List[Knapsack]):
 def runCLI():
     '''Runs the options selector.
     '''
-    knapsacks = None
+    knapsacks = list()
     option = prompt(createMenu())['menu']
+    # generate
     if option == 1:
-        # generate
         knapsacks = generateInstances()
+        
+        # formatting strings to print
         instances_str = 'instance'
         files_str = 'file'
         if len(knapsacks) > 1:
             instances_str += 's'
             files_str += 's'
-        print('\n  Saving {} to {}... '.format(instances_str, files_str), end='')
+        print('  Saving {} to {}...\n'.format(instances_str, files_str), end='')
         for k in knapsacks:
             k.toFile()
-        print('done')
+        print('  done.')
+    # load
     else:
-        # load
         files = listFiles()
         if not files:
             print("\nThere isn't any available file to load.")
@@ -215,21 +217,26 @@ def runCLI():
             else:
                 system('cls')
                 return runCLI()
+        # there are available files
         else:
-            # there are available files
             instances = validateCheckbox(createFilesCheckbox(files), 'files')
+
+            # formatting strings to print
             instances_str = 'instance'
             if len(instances) > 1:
                 instances_str += 's'
             print('  Loading {}...\n'.format(instances_str), end='')
-            # knapsacks = [Knapsack.fromFile(name) for name in instances]
+
             knapsacks = list()
             for name in instances:
                 k = Knapsack.fromFile(name)
                 if k is not None:
                     knapsacks.append(k)
-            print('  done.')
-    
-    if knapsacks is None:
-        return
+            
+            # check if knapsacks' list is empty
+            if not knapsacks:
+                print('  failed :(')
+                return runCLI()
+            else:
+                print('  done.')
     solveInstances(knapsacks)
