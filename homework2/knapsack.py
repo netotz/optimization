@@ -50,7 +50,7 @@ class Knapsack:
         file_path = getFilePath(file_name)
         try:
             if stat(file_path).st_size == 0:
-                print('Empty file.')
+                print('\t{} is empty!'.format(file_name))
                 return None
             with open(file_path, 'r') as file:
                 items = list()
@@ -64,10 +64,10 @@ class Knapsack:
                         first_line = False
             return cls(int(n), float(W), items)
         except FileNotFoundError as error:
-            print('File not found: {}'.format(error))
+            print('\tFile {} not found: {}'.format(file_name, error))
             return None
-        except ValueError as error:
-            print('File has invalid format: {}'.format(error))
+        except ValueError:
+            print('\t{} has invalid format!'.format(file_name))
             return None
 
     def toFile(self):
