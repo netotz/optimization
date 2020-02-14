@@ -221,9 +221,14 @@ def runCLI():
             instances_str = 'instance'
             if len(instances) > 1:
                 instances_str += 's'
-            print('  Loading {}... '.format(instances_str), end='')
-            knapsacks = [Knapsack.fromFile(name) for name in instances]
-            print('done')
+            print('  Loading {}...\n'.format(instances_str), end='')
+            # knapsacks = [Knapsack.fromFile(name) for name in instances]
+            knapsacks = list()
+            for name in instances:
+                k = Knapsack.fromFile(name)
+                if k is not None:
+                    knapsacks.append(k)
+            print('  done.')
     
     if knapsacks is None:
         return
