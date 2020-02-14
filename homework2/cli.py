@@ -191,6 +191,8 @@ def solveInstances(knapsacks: List[Knapsack]):
 def runCLI():
     '''Runs the options selector.
     '''
+    print()
+
     knapsacks = list()
     option = prompt(createMenu())['menu']
     # generate
@@ -215,7 +217,6 @@ def runCLI():
             if prompt(askForExit())['exit']:
                 return
             else:
-                system('cls')
                 return runCLI()
         # there are available files
         else:
