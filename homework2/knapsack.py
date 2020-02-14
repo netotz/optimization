@@ -2,7 +2,7 @@
 """
 from random import randint
 from typing import List
-from os import stat
+from os import stat, makedirs
 from os.path import exists
 
 from item import Item
@@ -78,16 +78,23 @@ class Knapsack:
 
         try:
             index = 0
+            # loop until a name that doesn't already exist is generated
             while True:
                 file_path = getFilePath(generateFileName(self.total_items, self.capacity, index))
                 if exists(file_path):
                     index += 1
                 else:
                     break
+            
+            # if instances/ folder doesn't exist, create it
+            subdirectory = getFilePath('')
+            if not exists(subdirectory):
+                makedirs(subdirectory)
+            
             with open(file_path, 'w') as file:
                 file.write(data)
-        except (IOError, ValueError) as error:
-            print("Instance could not be saved: {}".format(error))
+        except (IOError, OSError, ValueError) as error:
+            print("\tInstance could not be saved: {}".format(error))
 
     def sortItems(self, by):
         '''Sort items by specified attribute: value = 1, weight = 2 or ratio = 3 (default).
