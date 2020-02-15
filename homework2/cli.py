@@ -24,7 +24,7 @@ __writing = None
 def saveLast(string):
     '''Saves the last given value within the prompt.
     '''
-    if isPositiveNumber('int', string):
+    if isPositiveNumber(int, string):
         global __last
         __last = int(string)
         return True
@@ -33,9 +33,8 @@ def saveLast(string):
 def validateMax(string):
     '''Returns True if the string represents a greater number than LAST, otherwise returns an error string.
     '''
-    if isPositiveNumber('int', string):
+    if isPositiveNumber(int, string):
         integer = int(string)
-        global __last
         if integer > __last:
             return True
         else:
