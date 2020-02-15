@@ -8,7 +8,7 @@ from threading import Thread
 
 # from PyInquirer import prompt
 # symbols used by PyInquirer aren't showing in CMD
-from questionary import prompt
+from questionary import prompt, confirm, select, checkbox, Choice
 
 from validations import isPositiveNumber, isValidPercentage
 from knapsack import Knapsack
@@ -66,17 +66,6 @@ def createInstanceQuestions():
         createInputQuestion('max w', 'And how high?', validateMax)
     )
 
-def askAnotherInstance():
-    '''Asks to prompt for another instance.
-    '''
-    return (
-        {
-            'type': 'confirm',
-            'name': 'another',
-            'message': 'Do you want to add another instance?'
-        }
-    )
-
 def generateInstances() -> List[Knapsack]:
     '''Generate instances from prompt.
     '''
@@ -95,83 +84,47 @@ def generateInstances() -> List[Knapsack]:
             __writing.join()
         __writing = Thread(target = knapsacks[-1].toFile)
         __writing.start()
-        another = prompt(askAnotherInstance())['another']
+
+        another = confirm('Do you want to add another instance?').ask()
         i += 1
     return knapsacks
 
-def createMenu():
-    '''Create the main menu option.
+def menu():
+    '''Ask to select an option of the menu.
     '''
-    return (
-        { # ask to generate or load an instance
-            'type': 'list',
-            'name': 'menu',
-            'message': 'What do you want to do?',
-            'qmark': '~',
-            'choices': (
-                {
-                    'name': 'Generate random instances',
-                    'value': 1
-                },
-                {
-                    'name': 'Load instances from files',
-                    'value': 2
-                }
-            )
-        }
-    )
+    return select(
+        'What do you want to do?',
+        [
+            Choice('Generate random instances', 1),
+            Choice('Load instances from files', 2)
+        ],
+        qmark='~'
+    ).ask()
 
-def askForExit():
-    return (
-        {
-            'type': 'confirm',
-            'name': 'exit',
-            'message': 'Do you want to exit?'
-        }
-    )
-
-def createFilesCheckbox(files):
+def filesCheckbox(files):
     '''Returns a checkbox of the available files.
     '''
-    files_listed = [{'name': name} for name in files]
-    return (
-            {
-                'type': 'checkbox',
-                'qmark': '~',
-                'name': 'files',
-                'message': 'Which instances do you want to load?',
-                'choices': files_listed
-        }
+    files_listed = [Choice(name) for name in files]
+    return checkbox(
+        'Which instances do you want to load?',
+        files_listed,
+        qmark='~'
     )
 
-def createHeuristicsCheckbox():
+def heuristicsCheckbox():
     '''Returns a checkbox to select a heuristic.
     '''
-    return (
-        {
-            'type': 'checkbox',
-            'qmark': '~',
-            'name': 'heuristics',
-            'message': 'Which heuristic techniques do you want to use?',
-            'choices': (
-                {
-                    'name': 'Pick the most valuable items',
-                    'value': 1
-                },
-                {
-                    'name': 'Pick the lightest items',
-                    'value': 2
-                },
-                {
-                    'name': 'Pick the items with the highest value-weight ratio',
-                    'checked': True,
-                    'value': 3
-                }
-            )
-        }
+    return checkbox(
+        'Which heuristic techniques do you want to use?',
+        [
+            Choice('Pick the most valuable items', 1),
+            Choice('Pick the lightest items', 2),
+            Choice('Pick the items with the highest value-weight ratio', 3, checked=True)
+        ],
+        qmark='~'
     )
 
-def validateCheckbox(checkbox, name):
+def validateChoices(checkbox, name):
     '''
     Enters a loop until at least one element of the checkbox is chosen.
 
@@ -179,16 +132,16 @@ def validateCheckbox(checkbox, name):
     '''
     while True:
         print()
-        answers = prompt(checkbox)[name]
-        if len(answers) > 0:
-            return answers
+        choices = checkbox.ask()
+        if len(choices) > 0:
+            return choices
         else:
-            print('Please select at least one {}.'.format(name[:-1]))
+            print('Please select at least one {}.'.format(name))
 
 def solveInstances(knapsacks: List[Knapsack]):
     '''Solve the generated or loaded instances by the specified heuristics.
     '''
-    heuristics = validateCheckbox(createHeuristicsCheckbox(), 'heuristics')
+    heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
     for i, k in enumerate(knapsacks):
         print('\n{}° instance:\n   {} items\n   {} of capacity'.format(i + 1, k.total_items, k.capacity))
         for h in heuristics:
@@ -203,7 +156,7 @@ def runCLI():
     print()
 
     knapsacks = list()
-    option = prompt(createMenu())['menu']
+    option = menu()
     # generate
     if option == 1:
         knapsacks = generateInstances()
@@ -212,13 +165,13 @@ def runCLI():
         files = listFiles()
         if not files:
             print("\nThere isn't any available file to load.")
-            if prompt(askForExit())['exit']:
+            if confirm('Do you want to exit?').ask():
                 return
             else:
                 return runCLI()
         # there are available files
         else:
-            instances = validateCheckbox(createFilesCheckbox(files), 'files')
+            instances = validateChoices(filesCheckbox(files), 'file')
 
             # formatting strings to print
             instances_str = 'instance'
