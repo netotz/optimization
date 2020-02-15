@@ -1,5 +1,7 @@
-"""Module for the Instance class.
-"""
+'''
+Module for the Instance class.
+'''
+
 from random import randint
 from typing import List
 from os import stat, makedirs
@@ -9,11 +11,14 @@ from item import Item
 from file_handling import getFilePath, generateFileName
 
 class Knapsack:
-    '''Data of a basic Knapsack problem: number of items, knapsack's capacity and the items.
+    '''
+    Data of a basic Knapsack problem: number of items, knapsack's capacity and the items.
     
-    Also includes methods to both generate and read an instance saved in a file.'''
+    Also includes methods to both generate and read an instance saved in a file.
+    '''
     def __init__(self, total_items, capacity, items: List[Item]):
-        '''Constructs an Knapsack instance by specifying its data: n items, the capacity and a list of items.
+        '''
+        Constructs an Knapsack instance by specifying its data: n items, the capacity and a list of items.
         '''
         self.__total_items = total_items
         self.__capacity = capacity
@@ -33,28 +38,33 @@ class Knapsack:
 
     @classmethod
     def random(cls, total_items, min_weight, max_weight, min_value, max_value, capacity_percentage = 30):
-        '''Constructs an random Knapsack given the number of total items, limits for both values and weights, and an default percentage (0.3) to calculate the capacity.
+        '''
+        Constructs an random Knapsack given the number of total items, limits for both values and weights, and an default percentage (0.3) to calculate the capacity.
         '''
         W = total_items * (capacity_percentage / 100.0) * ((min_weight + max_weight) / 2.0)
         # truncate decimals
         capacity = float(format(W, 'g'))
+
         items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
         return cls(total_items, capacity, items)
 
     @classmethod
     def fromFile(cls, file_name):
-        '''Loads the instance saved in file_name.dat.
+        '''
+        Loads the instance saved in file_name.dat.
 
         Returns a Knapsack with the instance's data.
         '''
         file_path = getFilePath(file_name)
         try:
+            # if file is empty
             if stat(file_path).st_size == 0:
                 print('\t{} is empty!'.format(file_name))
                 return None
+
+            items = list()
+            first_line = True
             with open(file_path, 'r') as file:
-                items = list()
-                first_line = True
                 for line in file:
                     if not first_line:
                         index, value, weight = line.split()
@@ -71,8 +81,10 @@ class Knapsack:
             return None
 
     def toFile(self):
-        '''Saves the instance to a .dat file in the instances/ subdirectory.
         '''
+        Saves the instance to a .dat file in the instances/ subdirectory.
+        '''
+        # concatenate all data to write
         data = str(self.total_items) + ' ' + str(self.capacity) + '\n'
         data += '\n'.join([str(item) for item in self.items])
 
@@ -90,14 +102,14 @@ class Knapsack:
             subdirectory = getFilePath('')
             if not exists(subdirectory):
                 makedirs(subdirectory)
-            
             with open(file_path, 'w') as file:
                 file.write(data)
         except (IOError, OSError, ValueError) as error:
             print("\tInstance could not be saved: {}".format(error))
 
     def sortItems(self, by):
-        '''Sort items by specified attribute: value = 1, weight = 2 or ratio = 3 (default).
+        '''
+        Sort items by specified attribute: value = 1, weight = 2 or ratio = 3 (default).
         '''
         if by == 1:
             function = lambda item: item.value
@@ -108,5 +120,4 @@ class Knapsack:
         else:
             function = lambda item: item.ratio
             descending = True
-        unsorted_items = self.items
-        self.__items = sorted(unsorted_items, key = function, reverse = descending)
+        self.__items = sorted(self.items, key = function, reverse = descending)
