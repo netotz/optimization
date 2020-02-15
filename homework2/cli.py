@@ -1,28 +1,32 @@
-"""Module for the CLI (command line interface).
 """
+Module for the CLI (command line interface).
+"""
+
 from typing import List
 from os import system
+from threading import Thread
 
-# ! symbols used by PyInquirer don't show in CMD
 # from PyInquirer import prompt
+# symbols used by PyInquirer aren't showing in CMD
 from questionary import prompt
-# import examples as styles
 
 from validations import isPositiveNumber, isValidPercentage
 from knapsack import Knapsack
 from file_handling import listFiles
 from heuristic import pickItems, sumValues
 
-# last given value
-# ! global variable
-__last__ = 0
+#! global variables
+# last given value in inputs
+__last = 0
+# thread used for writing to files
+__writing = None
 
 def saveLast(string):
     '''Saves the last given value within the prompt.
     '''
     if isPositiveNumber('int', string):
-        global __last__
-        __last__ = int(string)
+        global __last
+        __last = int(string)
         return True
     return 'Please enter a valid positive integer.'
 
@@ -31,8 +35,8 @@ def validateMax(string):
     '''
     if isPositiveNumber('int', string):
         integer = int(string)
-        global __last__
-        if integer > __last__:
+        global __last
+        if integer > __last:
             return True
         else:
             return 'Please enter a number greater than the lower limit.'
@@ -78,15 +82,20 @@ def generateInstances() -> List[Knapsack]:
     '''
     knapsacks = list()
     i = 1
-    while True:
+    another = True
+    while another:
         print('\n  === {}° instance ==='.format(i))
         answers = prompt(createInstanceQuestions())
         print('  Generating instance... ', end='')
         knapsacks.append(Knapsack.random(answers['n'], answers['min w'], answers['max w'], answers['min v'], answers['max v'], answers['p']))
         print('done')
-        answers = prompt(askAnotherInstance())
-        if not answers['another']:
-            break
+
+        global __writing
+        if __writing is not None:
+            __writing.join()
+        __writing = Thread(target = knapsacks[-1].toFile)
+        __writing.start()
+        another = prompt(askAnotherInstance())['another']
         i += 1
     return knapsacks
 
@@ -198,17 +207,6 @@ def runCLI():
     # generate
     if option == 1:
         knapsacks = generateInstances()
-        
-        # formatting strings to print
-        instances_str = 'instance'
-        files_str = 'file'
-        if len(knapsacks) > 1:
-            instances_str += 's'
-            files_str += 's'
-        print('  Saving {} to {}...'.format(instances_str, files_str))
-        for k in knapsacks:
-            k.toFile()
-        print('  ...done')
     # load
     else:
         files = listFiles()
@@ -240,4 +238,10 @@ def runCLI():
                 return runCLI()
             else:
                 print('  ...done')
+    
     solveInstances(knapsacks)
+
+    if __writing.is_alive():
+        print('  Saving last instance to file... ', end='')
+        __writing.join()
+        print('done')
