@@ -194,7 +194,7 @@ def runCLI():
     
     solveInstances(knapsacks)
 
-    if __writing.is_alive():
+    if __writing is not None and __writing.is_alive():
         print('  Saving last instance to file... ', end='')
         __writing.join()
         print('done')
