@@ -224,28 +224,39 @@ def runCLI():
             reading = list()
             for index, file_name in enumerate(instances):
                 name = 'r' + str(index + 1)
+                # new thread to read a file
                 read = Thread(target=lambda q, arg: q.put(Knapsack.fromFile(arg)), args=(queue, file_name), name=name, daemon=True)
+                # start new thread and add it to list
                 read.start()
                 reading.append(read)
     
             heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
 
+            # number of instances to solve
             size = len(instances)
             index = 1
             load_str = '  Loading instance...'
+            # while there exist unsolved instances
             while size:
+                # loop over list of threads
                 for i, read in enumerate(reading):
+                    # if thread is still running
                     if read.is_alive():
                         print('{}\r'.format(load_str), end='')
+                        # check next thread
                         continue
+                    # if thread finished
                     else:
+                        # delete thread
                         del reading[i]
-
+                    # get Knapsack object
                     knapsack = queue.get()
                     if knapsack is not None:
                         print('{}\r'.format(' ' * len(load_str)), end='')
                         solveInstance(knapsack, index, heuristics)
                     size -= 1
                     index += 1
+                    # if all instances have been solved
                     if size <= 0:
+                        # break for
                         break
