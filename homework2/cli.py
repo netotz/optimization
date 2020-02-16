@@ -5,6 +5,7 @@ Module for the CLI (command line interface).
 from typing import List
 from os import system
 from threading import Thread
+from queue import Queue
 
 # from PyInquirer import prompt
 # symbols used by PyInquirer aren't showing in CMD
@@ -131,7 +132,7 @@ def heuristicsCheckbox():
         qmark='~'
     )
 
-def validateChoices(checkbox, name):
+def validateChoices(checkbox, name)  -> List[str]:
     '''
     Enters a loop until at least one element of the checkbox is chosen.
 
@@ -145,27 +146,39 @@ def validateChoices(checkbox, name):
         else:
             print('Please select at least one {}.'.format(name))
 
-def solveInstances(knapsacks: List[Knapsack], heuristics):
-    '''Solve the generated or loaded instances by the specified heuristics.
+def solveInstance(knapsack: Knapsack, index, heuristics):
     '''
-    for i, k in enumerate(knapsacks):
-        print('\n{}° instance:\n   {} items\n   {} of capacity'.format(i + 1, k.total_items, k.capacity))
-        for h in heuristics:
-            items = pickItems(k, h)
-            value = sumValues(items)
-            print('\tTotal value by heuristic {}: {}\n\tPercentage of items picked: {:.2f}%'.format(h, value, (len(items) / k.total_items) * 100))
-            print()
+    Solve the generated or loaded instance by the specified heuristics.
+    '''
+    print('\n{}° instance:\n   {} items\n   {} of capacity'.format(index, knapsack.total_items, knapsack.capacity))
+    for h in heuristics:
+        items = pickItems(knapsack, h)
+        value = sumValues(items)
+        print('\tTotal value by heuristic {}: {}\n\tPercentage of items picked: {:.2f}%'.format(h, value, (len(items) / knapsack.total_items) * 100))
+        print()
 
 def runCLI():
     '''Runs the options selector.
     '''
     print()
 
-    knapsacks = list()
     option = menu()
     # generate
     if option == 1:
         knapsacks = generateInstances()
+        heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
+        for i, k in enumerate(knapsacks):
+            solveInstance(k, i + 1, heuristics)
+        # loop over threads list
+        for write in __writing:
+            # if a thread is still running
+            if write.is_alive():
+                index = write.name[-1]
+                print('  Saving {}° instance to file... '.format(index), end='')
+                # wait until the thread finishes
+                write.join()
+                print('done')
+        print('  All instances have been saved to files.')
     # load
     else:
         files = listFiles()
@@ -177,37 +190,34 @@ def runCLI():
                 return runCLI()
         # there are available files
         else:
+            # list for file names
             instances = validateChoices(filesCheckbox(files), 'file')
 
-            # formatting strings to print
-            instances_str = 'instance'
-            if len(instances) > 1:
-                instances_str += 's'
-            print('  Loading {}...'.format(instances_str))
-
-            knapsacks = list()
-            for name in instances:
-                k = Knapsack.fromFile(name)
-                if k is not None:
-                    knapsacks.append(k)
-
-            # check if knapsacks' list is empty
-            if not knapsacks:
-                print('  ...failed :(')
-                return runCLI()
-            else:
-                print('  ...done')
+            # queue for threads
+            queue = Queue(len(instances))
+            # list of threads for reading files
+            reading = list()
+            for index, file_name in enumerate(instances):
+                name = 'r' + str(index + 1)
+                read = Thread(target=lambda q, arg: q.put(Knapsack.fromFile(arg)), args=(queue, file_name), name=name)
+                read.start()
+                reading.append(read)
     
-    heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
-    solveInstances(knapsacks, heuristics)
+            heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
 
-    # loop over threads list
-    for write in __writing:
-        # if a thread is still running
-        if write.is_alive():
-            index = write.name[-1]
-            print('  Saving {}° instance to file... '.format(index), end='')
-            # wait until the thread finishes
-            write.join()
-            print('done')
-    print('  All instances have been saved to files.')
+            size = len(instances)
+            index = 1
+            while size:
+                for i, read in enumerate(reading):
+                    if read.is_alive():
+                        continue
+                    else:
+                        del reading[i]
+
+                    knapsack = queue.get()
+                    if knapsack is not None:
+                        solveInstance(knapsack, index, heuristics)
+                    size -= 1
+                    index += 1
+                    if size <= 0:
+                        break
