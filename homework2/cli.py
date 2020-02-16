@@ -4,6 +4,7 @@ Module for the CLI (command line interface).
 
 from typing import List
 from os import system
+from sys import maxsize
 from threading import Thread
 from queue import Queue
 
@@ -11,7 +12,7 @@ from queue import Queue
 # symbols used by PyInquirer aren't showing in CMD
 from questionary import prompt, confirm, select, checkbox, Choice
 
-from validations import isPositiveNumber, isValidPercentage
+from validations import isPositiveNumber, isValidPercentage, messages
 from knapsack import Knapsack
 from file_handling import listFiles
 from heuristic import pickItems, sumValues
@@ -22,28 +23,46 @@ __last = 0
 # list of threads for writing to files
 __writing = [Thread()]
 
+def delimitItems(string):
+    '''
+    Set a maximum value for the input of number of items.
+    '''
+    if isPositiveNumber(int, string):
+        integer = int(string)
+        if integer > 5000000:
+            return messages['lower'].format(5000000)
+        return True
+    return messages['valid']
+
 def saveLast(string):
-    '''Saves the last given value within the prompt.
+    '''
+    Saves the last given value within the prompt.
     '''
     if isPositiveNumber(int, string):
         global __last
         __last = int(string)
+        if __last > maxsize - 1:
+            return messages['lower'].format(maxsize - 1)
         return True
-    return 'Please enter a valid positive integer.'
+    return messages['valid']
 
 def validateMax(string):
-    '''Returns True if the string represents a greater number than LAST, otherwise returns an error string.
+    '''
+    Returns True if the string represents a greater number than LAST, otherwise returns an error string.
     '''
     if isPositiveNumber(int, string):
         integer = int(string)
-        if integer > __last:
+        if integer > maxsize:
+            return messages['lower'].format(maxsize)
+        elif integer > __last:
             return True
         else:
-            return 'Please enter a number greater than the lower limit.'
-    return 'Please enter a valid positive integer.'
+            return messages['greater']
+    return messages['valid']
 
 def createInputQuestion(name, message, function = saveLast, cast = int):
-    '''Returns a dictionary of type input.
+    '''
+    Returns a dictionary of type input.
     '''
     return {
         'type': 'input',
@@ -55,10 +74,11 @@ def createInputQuestion(name, message, function = saveLast, cast = int):
     }
 
 def createInstanceQuestions():
-    '''Returns a tuple with questions asking for data to generate an instance.
+    '''
+    Returns a tuple with questions asking for data to generate an instance.
     '''
     return (
-        createInputQuestion('n', 'How many items?'),
+        createInputQuestion('n', 'How many items?', delimitItems),
         createInputQuestion('p', 'What percentage of the items can fit in the knapsack?', isValidPercentage, float),
         createInputQuestion('min v', 'How low can the value of an item be?'),
         createInputQuestion('max v', 'And how high?', validateMax),
@@ -67,7 +87,8 @@ def createInstanceQuestions():
     )
 
 def generateInstances() -> List[Knapsack]:
-    '''Generate instances from prompt.
+    '''
+    Generate instances from prompt.
     '''
     knapsacks = list()
     index = 1
@@ -81,7 +102,7 @@ def generateInstances() -> List[Knapsack]:
 
         # new thread to write last instance and start it
         name = 'w' + str(index)
-        write = Thread(target=knapsacks[-1].toFile, name=name)
+        write = Thread(target=knapsacks[-1].toFile, name=name, daemon=True)
         write.start()
         global __writing
         # if last thread in list is still running
@@ -98,7 +119,8 @@ def generateInstances() -> List[Knapsack]:
     return knapsacks
 
 def menu():
-    '''Ask to select an option of the menu.
+    '''
+    Ask to select an option of the menu.
     '''
     return select(
         'What do you want to do?',
@@ -110,7 +132,8 @@ def menu():
     ).ask()
 
 def filesCheckbox(files):
-    '''Returns a checkbox of the available files.
+    '''
+    Returns a checkbox of the available files.
     '''
     files_listed = [Choice(name) for name in files]
     return checkbox(
@@ -120,7 +143,8 @@ def filesCheckbox(files):
     )
 
 def heuristicsCheckbox():
-    '''Returns a checkbox to select a heuristic.
+    '''
+    Returns a checkbox to select a heuristic.
     '''
     return checkbox(
         'Which heuristic techniques do you want to use?',
@@ -150,7 +174,7 @@ def solveInstance(knapsack: Knapsack, index, heuristics):
     '''
     Solve the generated or loaded instance by the specified heuristics.
     '''
-    print('\n{}° instance:\n   {} items\n   {} of capacity'.format(index, knapsack.total_items, knapsack.capacity))
+    print(' {}° instance:\n   {} items\n   {} of capacity'.format(index, knapsack.total_items, knapsack.capacity))
     for h in heuristics:
         items = pickItems(knapsack, h)
         value = sumValues(items)
@@ -158,7 +182,8 @@ def solveInstance(knapsack: Knapsack, index, heuristics):
         print()
 
 def runCLI():
-    '''Runs the options selector.
+    '''
+    Runs the options selector.
     '''
     print()
 
@@ -199,7 +224,7 @@ def runCLI():
             reading = list()
             for index, file_name in enumerate(instances):
                 name = 'r' + str(index + 1)
-                read = Thread(target=lambda q, arg: q.put(Knapsack.fromFile(arg)), args=(queue, file_name), name=name)
+                read = Thread(target=lambda q, arg: q.put(Knapsack.fromFile(arg)), args=(queue, file_name), name=name, daemon=True)
                 read.start()
                 reading.append(read)
     
@@ -207,15 +232,18 @@ def runCLI():
 
             size = len(instances)
             index = 1
+            load_str = '  Loading instance...'
             while size:
                 for i, read in enumerate(reading):
                     if read.is_alive():
+                        print('{}\r'.format(load_str), end='')
                         continue
                     else:
                         del reading[i]
 
                     knapsack = queue.get()
                     if knapsack is not None:
+                        print('{}\r'.format(' ' * len(load_str)), end='')
                         solveInstance(knapsack, index, heuristics)
                     size -= 1
                     index += 1
