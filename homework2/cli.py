@@ -18,8 +18,8 @@ from heuristic import pickItems, sumValues
 #! global variables
 # last given value in inputs
 __last = 0
-# thread used for writing to files
-__writing = None
+# list of threads for writing to files
+__writing = [Thread()]
 
 def saveLast(string):
     '''Saves the last given value within the prompt.
@@ -69,23 +69,31 @@ def generateInstances() -> List[Knapsack]:
     '''Generate instances from prompt.
     '''
     knapsacks = list()
-    i = 1
+    index = 1
     another = True
     while another:
-        print('\n  === {}° instance ==='.format(i))
+        print('\n  === {}° instance ==='.format(index))
         answers = prompt(createInstanceQuestions())
         print('  Generating instance... ', end='')
         knapsacks.append(Knapsack.random(answers['n'], answers['min w'], answers['max w'], answers['min v'], answers['max v'], answers['p']))
         print('done')
 
+        # new thread to write last instance and start it
+        name = 'w' + str(index)
+        write = Thread(target=knapsacks[-1].toFile, name=name)
+        write.start()
         global __writing
-        if __writing is not None:
-            __writing.join()
-        __writing = Thread(target = knapsacks[-1].toFile)
-        __writing.start()
+        # if last thread in list is still running
+        if __writing[-1].is_alive():
+            # append new thread to list
+            __writing.append(write)
+        # if last thread in list is finished
+        else:
+            # use new thread to overwrite last in list
+            __writing[-1] = write
 
         another = confirm('Do you want to add another instance?').ask()
-        i += 1
+        index += 1
     return knapsacks
 
 def menu():
@@ -137,10 +145,9 @@ def validateChoices(checkbox, name):
         else:
             print('Please select at least one {}.'.format(name))
 
-def solveInstances(knapsacks: List[Knapsack]):
+def solveInstances(knapsacks: List[Knapsack], heuristics):
     '''Solve the generated or loaded instances by the specified heuristics.
     '''
-    heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
     for i, k in enumerate(knapsacks):
         print('\n{}° instance:\n   {} items\n   {} of capacity'.format(i + 1, k.total_items, k.capacity))
         for h in heuristics:
@@ -183,7 +190,7 @@ def runCLI():
                 k = Knapsack.fromFile(name)
                 if k is not None:
                     knapsacks.append(k)
-            
+
             # check if knapsacks' list is empty
             if not knapsacks:
                 print('  ...failed :(')
@@ -191,9 +198,16 @@ def runCLI():
             else:
                 print('  ...done')
     
-    solveInstances(knapsacks)
+    heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
+    solveInstances(knapsacks, heuristics)
 
-    if __writing is not None and __writing.is_alive():
-        print('  Saving last instance to file... ', end='')
-        __writing.join()
-        print('done')
+    # loop over threads list
+    for write in __writing:
+        # if a thread is still running
+        if write.is_alive():
+            index = write.name[-1]
+            print('  Saving {}° instance to file... '.format(index), end='')
+            # wait until the thread finishes
+            write.join()
+            print('done')
+    print('  All instances have been saved to files.')
