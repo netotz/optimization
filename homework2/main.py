@@ -1,3 +1,6 @@
 from cli import runCLI
 
-runCLI()
+try:
+    runCLI()
+except Exception:
+    print('\r', end='')
