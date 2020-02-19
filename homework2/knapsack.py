@@ -3,9 +3,9 @@ Module for the Instance class.
 '''
 
 from random import randint
-from typing import List
 from os import stat, makedirs
 from os.path import exists
+from itertools import tee
 
 from item import Item
 from file_handling import getFilePath, generateFileName
@@ -16,7 +16,7 @@ class Knapsack:
     
     Also includes methods to both generate and read an instance saved in a file.
     '''
-    def __init__(self, total_items, capacity, items: List[Item]):
+    def __init__(self, total_items, capacity, items):
         '''
         Constructs an Knapsack instance by specifying its data: n items, the capacity and a list of items.
         '''
@@ -33,19 +33,23 @@ class Knapsack:
         return self.__capacity
 
     @property
-    def items(self) -> List[Item]:
+    def items(self):
         return self.__items
+    @items.setter
+    def items(self, new_items):
+        self.__items = new_items
 
     @classmethod
     def random(cls, total_items, min_weight, max_weight, min_value, max_value, capacity_percentage = 30):
         '''
         Constructs an random Knapsack given the number of total items, limits for both values and weights, and an default percentage (0.3) to calculate the capacity.
         '''
-        W = total_items * (capacity_percentage / 100.0) * ((min_weight + max_weight) / 2.0)
+        W = total_items * (capacity_percentage / 100) * ((min_weight + max_weight) / 2)
         # truncate decimals
-        capacity = float(format(W, 'g'))
+        capacity = float('%g' % W)
 
-        items = [Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items)]
+        # create generator expression to iterate over the items
+        items = (Item(index, randint(min_value, max_value), randint(min_weight, max_weight)) for index in range(total_items))
         return cls(total_items, capacity, items)
 
     @classmethod
@@ -61,18 +65,19 @@ class Knapsack:
             if stat(file_path).st_size == 0:
                 print('\t{} is empty!'.format(file_name))
                 return None
-
+            
             items = list()
-            first_line = True
             with open(file_path, 'r') as file:
+                # read first line which includes number of items and capacity
+                n, W = file.readline().rstrip('\n').split()
+
+                items_append = items.append
+                # read rest of file (items' data)
                 for line in file:
-                    if not first_line:
-                        index, value, weight = line.split()
-                        items.append(Item(int(index),int(value),int(weight)))
-                    else:
-                        n, W = line.split()
-                        first_line = False
-            return cls(int(n), float(W), items)
+                    index, value, weight = line.split()
+                    items_append(Item(int(index), int(value), int(weight)))
+            
+            return cls(int(n), float(W), (_ for _ in items))
         except FileNotFoundError as error:
             print('\tFile {} not found: {}'.format(file_name, error))
             return None
@@ -84,9 +89,10 @@ class Knapsack:
         '''
         Saves the instance to a .dat file in the instances/ subdirectory.
         '''
+        items_to_write = self.copyItems()
         # concatenate all data to write
-        data = str(self.total_items) + ' ' + str(self.capacity) + '\n'
-        data += '\n'.join([str(item) for item in self.items])
+        data = f'{self.total_items} {self.capacity}\n'
+        data += '\n'.join([str(_) for _ in items_to_write])
 
         try:
             index = 0
@@ -102,6 +108,7 @@ class Knapsack:
             subdirectory = getFilePath('')
             if not exists(subdirectory):
                 makedirs(subdirectory)
+                
             with open(file_path, 'w') as file:
                 file.write(data)
         except (IOError, OSError, ValueError) as error:
@@ -120,4 +127,12 @@ class Knapsack:
         else:
             function = lambda item: item.ratio
             descending = True
-        self.__items = sorted(self.items, key = function, reverse = descending)
+        items_to_sort = self.copyItems()
+        return sorted(items_to_sort, key = function, reverse = descending)
+
+    def copyItems(self):
+        '''
+        Returns a copy of self.items.
+        '''
+        self.items, items_copy = tee(self.items)
+        return items_copy
