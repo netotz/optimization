@@ -6,7 +6,7 @@ Module for validating inputs.
 messages = {
     'valid': 'Please enter a valid positive integer.',
     'greater': 'Please enter a number greater than the lower limit.',
-    'lower': 'Please enter a number lower than {}.',
+    'lower': 'Please enter a number lower or equal than {}.',
     'percentage': 'Please enter a percentage between {} and {}.'
 }
 
