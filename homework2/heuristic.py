@@ -1,30 +1,25 @@
-"""Module for the heuristic technique to solve a Knapsack problem.
 """
-from typing import List
+Module for the heuristic technique to solve a Knapsack problem.
+"""
 
 from knapsack import Knapsack
 from item import Item
 
-def pickItems(knapsack: Knapsack, heuristic) -> List[Item]:
-    '''Use the heuristic specified in the argument to get a solution for the knapsack problem.
+def pickItems(knapsack: Knapsack, heuristic):
     '''
-    knapsack.sortItems(heuristic)
-    solution = list()
+    Use the heuristic specified in the argument to get a solution for the knapsack problem.
+    '''
+    items_sorted = knapsack.sortItems(heuristic)
     W = knapsack.capacity
-    for item in knapsack.items:
-        if item.weight <= W:
-            solution.append(item)
-            W -= item.weight
+    for item in items_sorted:
+        weight = item.weight
+        if weight <= W:
+            # add item to generator expression
+            yield item
+            W -= weight
+            # if no more items fit in the knapsack
             if W == 0:
                 break
+        # if heuristic by weight is used, the rest of the items won't fit
         elif heuristic == 2:
             break
-    return solution
-
-def sumValues(items: List[Item]):
-    '''Objective function of the Knapsack problem. Sums the value of each item in the items list.
-    '''
-    total_value = 0
-    for item in items:
-        total_value += item.value
-    return total_value
