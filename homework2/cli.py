@@ -13,7 +13,7 @@ from time import time
 # symbols used by PyInquirer aren't showing in CMD
 from questionary import prompt, confirm, select, checkbox, Choice
 
-from validations import isPositiveNumber, isValidPercentage, messages
+from validation import isPositiveNumber, isValidPercentage, messages
 from knapsack import Knapsack
 from file_handling import listFiles
 from heuristic import pickItems
@@ -119,7 +119,7 @@ def heuristicsCheckbox():
         [
             Choice('Pick the most valuable items', 1),
             Choice('Pick the lightest items', 2),
-            Choice('Pick the items with the highest value-weight ratio', 3, checked=True)
+            Choice('Pick the items with the highest value-weight ratio', 3)
         ],
         qmark='~'
     )
@@ -148,15 +148,17 @@ def solveInstance(knapsack: Knapsack, index, heuristics):
     for h in heuristics:
         print('\tSolving instance... ', end='')
         start = time()
+        # heuristics take 0 seconds to run
         items = pickItems(knapsack, h)
-        # end = time()
+        # the measured time is actually just the sum of the values:
         value = sum(i.value for i in items)
-        # value = pickItems(knapsack, h)
         end = time()
+        measured_time = end - start
         print('done\r', end='')
         print('                                    \r', end='')
         print(f'\tTotal value by heuristic {h}: {value}')
-        print(f'\t   Measured time: {(end - start):.3g} seconds')
+        if measured_time >= 0.1:
+            print(f'\t   Measured time: {measured_time:.3g} seconds')
 
 def generateInstances():
     '''
@@ -186,11 +188,7 @@ def generateInstances():
         index += 1
 
     heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
-
-    # for i in knapsacks[0].items:
-    #     print(i, ',', end='')
-    # print()
-
+    
     save_str = '  Saving instances to files...'
     size = len(writing)
     while size:
@@ -207,7 +205,6 @@ def generateInstances():
                 print('%s\r' % (' ' * len(save_str)), end='')
                 solveInstance(k, index, heuristics)
                 size -= 1
-    # print('                                            ',)
     print('\n All instances have been saved to files.')
 
 def loadInstances():
@@ -216,55 +213,53 @@ def loadInstances():
     '''
     files = listFiles()
     if not files:
-        print("\nThere isn't any available file to load.")
-        if confirm('Do you want to exit?').ask():
-            return
-        else:
-            return runCLI()
-    # there are available files
-    else:
-        # list for file names
-        instances = validateChoices(filesCheckbox(files), 'file')
+        print("   There isn't any available file to load.")
+        return False
+    
+    ## there are available files
+    # list for file names
+    instances = validateChoices(filesCheckbox(files), 'file')
 
-        # queue for threads
-        thread_queue = ThreadQueue(len(instances))
-        # list of threads for reading files
-        reading = list()
-        for index, file_name in enumerate(instances):
-            name = 'r%d' % index
-            # new thread to read a file
-            read = Thread(target=lambda q, arg: q.put(Knapsack.fromFile(arg)), args=(thread_queue, file_name), name=name, daemon=True)
-            # start new thread and add it to list
-            read.start()
-            reading.append(read)
+    # queue for threads
+    thread_queue = ThreadQueue(len(instances))
+    # list of threads for reading files
+    reading = list()
+    for index, file_name in enumerate(instances):
+        name = 'r%d' % index
+        # new thread to read a file
+        read = Thread(target=lambda q, arg: q.put(Knapsack.fromFile(arg)), args=(thread_queue, file_name), name=name, daemon=True)
+        # start new thread and add it to list
+        read.start()
+        reading.append(read)
 
-        heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
+    heuristics = validateChoices(heuristicsCheckbox(), 'heuristic')
 
-        # number of instances to solve
-        size = len(instances)
-        index = 1
-        load_str = '  Loading instance...'
-        # while there exist unsolved instances
-        while size:
-            # loop over list of threads
-            for read in reading:
-                # if thread is still running
-                if read.is_alive():
-                    print('%s\r' % load_str, end='')
-                    # check next thread
-                    continue
-                read.join()
-                # get Knapsack object
-                knapsack = thread_queue.get()
-                if knapsack is not None:
-                    print('%s\r' % (' ' * len(load_str)), end='')
-                    solveInstance(knapsack, index, heuristics)
-                size -= 1
-                index += 1
-                # if all instances have been solved
-                if size <= 0:
-                    # break for
-                    break
+    # number of instances to solve
+    size = len(instances)
+    index = 1
+    load_str = '  Loading instance...'
+    # while there exist unsolved instances
+    while size:
+        # loop over list of threads
+        for read in reading:
+            # if thread is still running
+            if read.is_alive():
+                print('%s\r' % load_str, end='')
+                # check next thread
+                continue
+            read.join()
+            # get Knapsack object
+            knapsack = thread_queue.get()
+            if knapsack is not None:
+                print('%s\r' % (' ' * len(load_str)), end='')
+                solveInstance(knapsack, index, heuristics)
+            size -= 1
+            index += 1
+            # if all instances have been solved
+            if size <= 0:
+                # break for
+                break
+    return True
 
 def runCLI():
     '''
@@ -278,7 +273,8 @@ def runCLI():
         generateInstances()
     # load
     elif option == 2:
-        loadInstances()
+        if not loadInstances():
+            return runCLI()
     # exit
     elif option == 0:
         return
