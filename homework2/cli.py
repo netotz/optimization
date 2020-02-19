@@ -7,7 +7,6 @@ from os import system
 from sys import maxsize
 from threading import Thread
 from queue import Queue as ThreadQueue
-from time import time
 
 # from PyInquirer import prompt
 # symbols used by PyInquirer aren't showing in CMD
@@ -16,7 +15,7 @@ from questionary import prompt, confirm, select, checkbox, Choice
 from validation import isPositiveNumber, isValidPercentage, messages
 from knapsack import Knapsack
 from file_handling import listFiles
-from heuristic import pickItems
+from heuristic import solveInstance
 
 #! global variables
 # last given value in inputs
@@ -137,28 +136,6 @@ def validateChoices(checkbox, name)  -> List[str]:
             return choices
         else:
             print('Please select at least one %s.' % name)
-
-def solveInstance(knapsack: Knapsack, index, heuristics):
-    '''
-    Solve the generated or loaded instance by the specified heuristics.
-    '''
-    total_items = knapsack.total_items
-    capacity = knapsack.capacity
-    print(f' {index}° instance:\n   {total_items} items\n   {capacity} of capacity')
-    for h in heuristics:
-        print('\tSolving instance... ', end='')
-        start = time()
-        # heuristics take 0 seconds to run
-        items = pickItems(knapsack, h)
-        # the measured time is actually just the sum of the values:
-        value = sum(i.value for i in items)
-        end = time()
-        measured_time = end - start
-        print('done\r', end='')
-        print('                                    \r', end='')
-        print(f'\tTotal value by heuristic {h}: {value}')
-        if measured_time >= 0.1:
-            print(f'\t   Measured time: {measured_time:.3g} seconds')
 
 def generateInstances():
     '''

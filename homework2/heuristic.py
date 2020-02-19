@@ -2,6 +2,8 @@
 Module for the heuristic technique to solve a Knapsack problem.
 """
 
+from time import time
+
 from knapsack import Knapsack
 from item import Item
 
@@ -23,3 +25,24 @@ def pickItems(knapsack: Knapsack, heuristic):
         # if heuristic by weight is used, the rest of the items won't fit
         elif heuristic == 2:
             break
+
+def solveInstance(knapsack: Knapsack, index, heuristics):
+    '''
+    Solve the generated or loaded instance by the specified heuristics.
+    '''
+    print(f' {index}° instance:\n   {knapsack.total_items} items\n   {knapsack.capacity} of capacity')
+    for h in heuristics:
+        print('\tSolving instance... ', end='')
+        start = time()
+        # heuristics take 0 seconds to run:
+        items = pickItems(knapsack, h)
+        # the measured time is actually just the sum of the values:
+        value = sum(i.value for i in items)
+        end = time()
+        print('done\r', end='')
+        print('                                    \r', end='')
+        print(f'\tTotal value by heuristic {h}: {value}')
+        
+        measured_time = end - start
+        if measured_time >= 0.1:
+            print(f'\t   Measured time: {measured_time:.3g} seconds')
