@@ -193,8 +193,12 @@ def loadInstances(files):
     '''
     Load instances from files.
     '''
-    # list for file names
-    instances = validateChoices(filesCheckbox(files), 'file')
+    # if there are more than 1 available files
+    if len(files) > 1:
+        instances = validateChoices(filesCheckbox(files), 'file')
+    # if there is only 1 available file
+    else:
+        instances = files
 
     # queue for threads
     thread_queue = Queue(len(instances))
