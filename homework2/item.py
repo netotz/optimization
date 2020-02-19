@@ -28,6 +28,7 @@ class Item:
         return self.__ratio
 
     def __str__(self):
-        '''To String method.
+        '''
+        To String method.
         '''
         return str(self.index) + ' ' + str(self.value) + ' ' + str(self.weight)
