@@ -6,7 +6,7 @@ from typing import List
 from os import system
 from sys import maxsize
 from threading import Thread
-from queue import Queue as ThreadQueue
+from queue import Queue
 
 # from PyInquirer import prompt
 # symbols used by PyInquirer aren't showing in CMD
@@ -132,7 +132,7 @@ def validateChoices(checkbox, name)  -> List[str]:
     '''
     Enters a loop until at least one element of the checkbox is chosen.
 
-    Returns a list of the elements chosen.
+    Returns a list of the chosen elements.
     '''
     while True:
         print()
@@ -197,7 +197,7 @@ def loadInstances(files):
     instances = validateChoices(filesCheckbox(files), 'file')
 
     # queue for threads
-    thread_queue = ThreadQueue(len(instances))
+    thread_queue = Queue(len(instances))
     # list of threads for reading files
     reading = list()
     for index, file_name in enumerate(instances):
