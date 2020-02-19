@@ -10,13 +10,15 @@ from item import Item
 def pickItems(knapsack: Knapsack, heuristic):
     '''
     Use the heuristic specified in the argument to get a solution for the knapsack problem.
+
+    Returns a generator containing the items that were picked.
     '''
     items_sorted = knapsack.sortItems(heuristic)
     W = knapsack.capacity
     for item in items_sorted:
         weight = item.weight
         if weight <= W:
-            # add item to generator expression
+            # add item to generator
             yield item
             W -= weight
             # if no more items fit in the knapsack
