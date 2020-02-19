@@ -63,7 +63,7 @@ class Knapsack:
         try:
             # if file is empty
             if stat(file_path).st_size == 0:
-                print('\t{} is empty!'.format(file_name))
+                print('   %s is empty!' % file_name)
                 return None
             
             items = list()
@@ -79,10 +79,10 @@ class Knapsack:
             
             return cls(int(n), float(W), (_ for _ in items))
         except FileNotFoundError as error:
-            print('\tFile {} not found: {}'.format(file_name, error))
+            print('  ', error)
             return None
         except ValueError:
-            print('\t{} has invalid format!'.format(file_name))
+            print('   %s has invalid format!' % file_name)
             return None
 
     def toFile(self):
@@ -112,7 +112,7 @@ class Knapsack:
             with open(file_path, 'w') as file:
                 file.write(data)
         except (IOError, OSError, ValueError) as error:
-            print("\tInstance could not be saved: {}".format(error))
+            print('  ', error)
 
     def sortItems(self, by):
         '''
