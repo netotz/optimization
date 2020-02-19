@@ -84,17 +84,22 @@ def createInstanceQuestions():
         createInputQuestion('max w', 'And how high?', validateMax)
     )
 
-def menu():
+def menu(files = []):
     '''
-    Ask to select an option of the menu.
+    Ask to select an option of the menu and returns it.
     '''
+    # list of option to display
+    options = [Choice('Generate random instances', 1)]
+    # if there is at least one available file to load
+    if files:
+        # add option to load
+        options.append(Choice('Load instances from files', 2))
+    # add option to exit
+    options.append(Choice('Exit', 0))
+
     return select(
         'What do you want to do?',
-        [
-            Choice('Generate random instances', 1),
-            Choice('Load instances from files', 2),
-            Choice('Exit', 0)
-        ],
+        options,
         qmark='~'
     ).ask()
 
@@ -184,16 +189,10 @@ def generateInstances():
                 size -= 1
     print('\n All instances have been saved to files.')
 
-def loadInstances():
+def loadInstances(files):
     '''
     Load instances from files.
     '''
-    files = listFiles()
-    if not files:
-        print("   There isn't any available file to load.")
-        return False
-    
-    ## there are available files
     # list for file names
     instances = validateChoices(filesCheckbox(files), 'file')
 
@@ -236,7 +235,6 @@ def loadInstances():
             if size <= 0:
                 # break for
                 break
-    return True
 
 def runCLI():
     '''
@@ -244,14 +242,16 @@ def runCLI():
     '''
     print()
 
-    option = menu()
+    # list of files that contains instances, if any
+    files = listFiles()
+
+    option = menu(files)
     # generate
     if option == 1:
         generateInstances()
-    # load
+    # load if available
     elif option == 2:
-        if not loadInstances():
-            return runCLI()
+        loadInstances(files)
     # exit
     elif option == 0:
         return
