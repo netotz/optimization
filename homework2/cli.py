@@ -12,7 +12,7 @@ from queue import Queue
 # symbols used by PyInquirer aren't showing in CMD
 from questionary import prompt, confirm, select, checkbox, Choice
 
-from validation import isPositiveNumber, isValidPercentage, messages
+from validation import isPositiveNumber, isValidPercentage, delimitItems, messages
 from knapsack import Knapsack
 from file_handling import listFiles
 from heuristic import solveInstance
@@ -20,17 +20,6 @@ from heuristic import solveInstance
 #! global variables
 # last given value in inputs
 __last = 0
-
-def delimitItems(string):
-    '''
-    Set a maximum value for the input of number of items.
-    '''
-    if isPositiveNumber(int, string):
-        integer = int(string)
-        if integer > 5000000:
-            return messages['lower'].format(5000000)
-        return True
-    return messages['valid']
 
 def saveLast(string):
     '''

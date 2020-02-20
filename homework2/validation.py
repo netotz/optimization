@@ -31,3 +31,14 @@ def isValidPercentage(string, minimum = 1, maximum = 75):
         if percentage >= minimum and percentage <= maximum:
             return True
     return messages['percentage'].format(minimum, maximum)
+
+def delimitItems(string):
+    '''
+    Set a maximum value for the input of number of items.
+    '''
+    if isPositiveNumber(int, string):
+        integer = int(string)
+        if integer > 5000000:
+            return messages['lower'].format(5000000)
+        return True
+    return messages['valid']
