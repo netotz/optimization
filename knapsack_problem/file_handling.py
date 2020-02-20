@@ -1,9 +1,11 @@
 """
-Module for reading and writing files that contain instances of a Knapsack problem.
+Module for viewing subdirectories and constructing paths and file names.
 """
 
 from os import listdir, makedirs
 from os.path import dirname, join, isfile
+
+FOLDER = 'instances'
 
 def generateFileName(total_items, capacity, index = 0):
     '''
@@ -18,7 +20,7 @@ def getFilePath(file_name):
     Returns the path of file_name.
     '''
     current_directory = dirname(__file__)
-    file_path = join(current_directory, 'instances', file_name)
+    file_path = join(current_directory, FOLDER, file_name)
     return file_path
 
 def listFiles():
@@ -26,7 +28,7 @@ def listFiles():
     Returns a list with the .dat files in the instances/ subdirectory.
     '''
     current_directory = dirname(__file__)
-    subdirectory = join(current_directory, 'instances')
+    subdirectory = join(current_directory, FOLDER)
     try:
         files_list = listdir(subdirectory)
     except FileNotFoundError:
