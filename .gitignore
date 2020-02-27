@@ -1,5 +1,8 @@
-## random generated instances
+# random generated instances
 *.dat
+
+# ignore PDF generated from Jupyter Notebooks
+*.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
